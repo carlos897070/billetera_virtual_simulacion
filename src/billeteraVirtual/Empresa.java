@@ -34,8 +34,8 @@ public class Empresa {
 
 	@Override
 	public String toString() {
-		return "Empresa [cuit=" + cuit + ", nombreFantasia=" + nombreFantasia + ", telefono=" + telefono + ", email="
-				+ email + ", nombreContacto=" + nombreContacto + "]";
+		return "\n-Nombre: " + nombreFantasia + "\n-Telefono: " + telefono + "\n-Email: "
+				+ email + "\n-NombreContacto: " + nombreContacto;
 	}
 	
 	

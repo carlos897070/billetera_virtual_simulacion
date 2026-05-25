@@ -386,7 +386,7 @@ public class Billetera implements IBilletera {
 
 	@Override
 	public String toString() {
-		return "Billetera: \n\nUsuarios : " + usuarios + "\nEmpresas : " + empresas + "\nCuentas : " + imprimirCuentas() + "\nHistorial : "
+		return "\nBilletera: \n\nUsuarios: " + imprimirUsuarios() + "\nEmpresas: " + imprimirEmpresas() + "\n\nCuentas:\n" + imprimirCuentas() + "\nHistorial : "
 				+ historial;
 	}
 	
@@ -420,6 +420,31 @@ public class Billetera implements IBilletera {
 
 	    return sb.toString();
 	}
+	
+	private String imprimirUsuarios()
+	{
+		StringBuilder nuevo = new StringBuilder();
+		
+		for(Usuario us : usuarios.values())
+		{
+			nuevo.append(us).append("\n");
+		}
+		
+		return nuevo.toString();
+	}
+	
+	private String imprimirEmpresas()
+	{
+		StringBuilder nuevo = new StringBuilder();
+		
+		for(Empresa e : empresas.values())
+		{
+			nuevo.append(e).append("\n");
+		}
+		
+		return nuevo.toString();
+	}
+	
 	
 	public Cuenta obtenerCuenta(String alias)
 	{
