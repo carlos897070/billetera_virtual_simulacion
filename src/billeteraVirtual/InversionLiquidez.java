@@ -35,6 +35,7 @@ public class InversionLiquidez extends Inversion {
     public String toString() {
 
         return "\n-INVERSION:\n" +
+        	   " | Fecha: " + fecha + "\n" +
                " | Origen: " + "[" + cuentaOrigen.getDniTitular() + "]" + "[" + cuentaOrigen.getCvu() + "]\n" +
                " | Tipo: [Fondo De Liquidez Empresarial]" + "\n" +
                " | Monto: " + "[" +monto+ "]" + "\n" +

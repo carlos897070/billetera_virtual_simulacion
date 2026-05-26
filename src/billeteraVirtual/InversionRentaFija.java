@@ -35,6 +35,7 @@ public class InversionRentaFija extends Inversion {
     public String toString() {
 
         return "\n-INVERSION:\n" +
+        	   " | Fecha: " + fecha + "\n" +
                " | Origen: " + "[" + cuentaOrigen.getDniTitular() + "]" + "[" + cuentaOrigen.getCvu() + "]\n" +
                " | Tipo: [RentaFija]" + "\n" +
                " | Monto: " + "[" +monto+ "]" + "\n" +

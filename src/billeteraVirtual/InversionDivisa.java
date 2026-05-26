@@ -65,6 +65,7 @@ public class InversionDivisa extends Inversion {
     public String toString() {
 
         return "\n-INVERSION:\n" +
+        	   " | Fecha: " + fecha + "\n" +
                " | Origen: " + "[" + cuentaOrigen.getDniTitular() + "]" + "[" + cuentaOrigen.getCvu() + "]\n" +
                " | Tipo: [Divisa]" + "\n" +
                " | Monto: " + "[" +monto+ "]" + "\n" +

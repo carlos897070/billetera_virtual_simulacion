@@ -9,6 +9,11 @@ public class CuentaCorporativa extends Cuenta {
 		this.cuitEmpresa = cuitEmpresa;
 		// TODO Auto-generated constructor stub
 	}
+	
+	public String getCuitEmpresa()
+	{
+		return cuitEmpresa;
+	}
 
 	@Override
 	public String toString() {

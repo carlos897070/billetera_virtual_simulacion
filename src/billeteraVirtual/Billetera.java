@@ -193,14 +193,9 @@ public class Billetera implements IBilletera {
 		
 		// crear inverson y agregar a las estructuras de Billetera, Cuenta y Usuario
 		Inversion i = new InversionRentaFija(c, monto, plazoDias);
-		inversiones.put(i.getId(), i);
-		c.agregarInversion(i);
-		obtenerUsuarioTitularCuenta(cvu).agregarInversion(i);
 		
-		// agregar el movimiento a el historial global, al del usuario y cuenta
-		historial.add(i);
-		c.agregarMovimiento(i);
-		obtenerUsuarioTitularCuenta(cvu).agregarMovimiento(i);
+		// agrega la inversion las estructuras de Billetera, Cuenta y Usuario, y agrega la inversion a los historiales
+		registrarInversion(i, c);
 		
 		return i.getId();
 	}
@@ -225,14 +220,9 @@ public class Billetera implements IBilletera {
 		
 		// crear inverson y agregar a las estructuras de Billetera, Cuenta y Usuario
 		Inversion i = new InversionDivisa(c, monto, plazoDias, divisa, tasa);
-		inversiones.put(i.getId(), i);
-		c.agregarInversion(i);
-		obtenerUsuarioTitularCuenta(cvu).agregarInversion(i);
 		
-		// agregar el movimiento a el historial global, al del usuario y cuenta
-		historial.add(i);
-		c.agregarMovimiento(i);
-		obtenerUsuarioTitularCuenta(cvu).agregarMovimiento(i);
+		// agrega la inversion las estructuras de Billetera, Cuenta y Usuario, y agrega la inversion a los historiales
+		registrarInversion(i, c);
 		
 		return i.getId();
 	}
@@ -255,16 +245,11 @@ public class Billetera implements IBilletera {
 		// Extraer dinero para la inversion
 		c.retirarDinero(monto);
 		
-		// crear inverson y agregar a las estructuras de Billetera, Cuenta y Usuario
+		// crear inverson
 		Inversion i = new InversionLiquidez(c, monto, plazoDias);
-		inversiones.put(i.getId(), i);
-		c.agregarInversion(i);
-		obtenerUsuarioTitularCuenta(cvu).agregarInversion(i);
 		
-		// agregar el movimiento a el historial global, al del usuario y cuenta
-		historial.add(i);
-		c.agregarMovimiento(i);
-		obtenerUsuarioTitularCuenta(cvu).agregarMovimiento(i);
+		// agrega la inversion las estructuras de Billetera, Cuenta y Usuario, y agrega la inversion a los historiales
+		registrarInversion(i, c);
 		
 		return i.getId();
 	}
@@ -291,7 +276,7 @@ public class Billetera implements IBilletera {
 	    // cancelar inversion
 	    i.cancelar();
 	    
-	 // devolver dinero
+	    // devolver dinero
 	    c.depositar(i.calcularRetorno());
 	    i.modificarMonto(0);
 		
@@ -308,14 +293,14 @@ public class Billetera implements IBilletera {
 	@Override
 	public List<String> consultarHistorialGlobal() {
 		
-		List<String> resultado = new ArrayList<>();
+		List<String> historialGlobal = new ArrayList<>();
 
 	    for(Movimiento m : historial)
 	    {
-	        resultado.add(m.toString());
+	    	historialGlobal.add(m.toString());
 	    }
 
-	    return resultado;
+	    return historialGlobal;
 	}
 
 	@Override
@@ -323,14 +308,14 @@ public class Billetera implements IBilletera {
 		
 		Cuenta c = validarCuenta(cvu);
 		
-		List<String> resultado = new ArrayList<>();
+		List<String> historialCuenta = new ArrayList<>();
 		
 		for(Movimiento m : c.getHistorial())
 	    {
-	        resultado.add(m.toString());
+			historialCuenta.add(m.toString());
 	    }
 
-	    return resultado;
+	    return historialCuenta;
 	}
 
 	@Override
@@ -338,14 +323,14 @@ public class Billetera implements IBilletera {
 		
 		if(!usuarios.containsKey(dniUsuario)) throw new IllegalArgumentException("El usuario no se encuentra registrado en el sistema");
 		
-		List<String> resultado = new ArrayList<>();
+		List<String> historialUsuario = new ArrayList<>();
 		
 		for(Movimiento m :  usuarios.get(dniUsuario).getHistorial())
 	    {
-	        resultado.add(m.toString());
+			historialUsuario.add(m.toString());
 	    }
 
-	    return resultado;
+	    return historialUsuario;
 	}
 
 	@Override
@@ -367,26 +352,27 @@ public class Billetera implements IBilletera {
 
 	    if(cantidadTop <= 0) throw new IllegalArgumentException("Cantidad invalida");
 
-	    List<Cuenta> lista = new ArrayList<>(cuentas.values());
+	    List<Cuenta> cuntasExistentes = new ArrayList<>(cuentas.values());
 
 	    // ordenar de mayor a menor cantidad de movimientos
-	    lista.sort((c1, c2) -> c2.volumenDeCuenta() - c1.volumenDeCuenta());
+	    cuntasExistentes.sort((c1, c2) -> c2.volumenDeCuenta() - c1.volumenDeCuenta());
 
-	    List<String> resultado = new ArrayList<>();
+	    List<String> top = new ArrayList<>();
 
-	    int limite = Math.min(cantidadTop, lista.size());
+	    int limite = Math.min(cantidadTop, cuntasExistentes.size());
 
 	    for(int i = 0; i < limite; i++)
 	    {
-	        resultado.add(lista.get(i).toString());
+	        top.add(cuntasExistentes.get(i).toString());
 	    }
 
-	    return resultado;
+	    return top;
 	}
 
 	@Override
 	public String toString() {
-		return "\nBilletera: \n\nUsuarios: " + imprimirUsuarios() + "\nEmpresas: " + imprimirEmpresas() + "\n\nCuentas:\n" + imprimirCuentas() + "\nHistorial : "
+		return "\nBilletera: \n\nUsuarios: " + imprimirUsuarios() + "\nEmpresas: " + imprimirEmpresas() + 
+				"\nCuentas:\n" + imprimirCuentas() + "\nInversiones: " + imprimirInversiones() + "\nHistorial : "
 				+ historial;
 	}
 	
@@ -411,14 +397,14 @@ public class Billetera implements IBilletera {
 	
 	private String imprimirCuentas()
 	{
-	    StringBuilder sb = new StringBuilder();
+	    StringBuilder nuevo = new StringBuilder();
 
 	    for(Cuenta cuenta : cuentas.values())
 	    {
-	        sb.append(cuenta).append("\n");
+	        nuevo.append(cuenta).append("\n");
 	    }
 
-	    return sb.toString();
+	    return nuevo.toString();
 	}
 	
 	private String imprimirUsuarios()
@@ -440,6 +426,18 @@ public class Billetera implements IBilletera {
 		for(Empresa e : empresas.values())
 		{
 			nuevo.append(e).append("\n");
+		}
+		
+		return nuevo.toString();
+	}
+	
+	private String imprimirInversiones()
+	{
+		StringBuilder nuevo = new StringBuilder();
+		
+		for(Inversion i : inversiones.values())
+		{
+			nuevo.append(i).append("\n");
 		}
 		
 		return nuevo.toString();
@@ -467,6 +465,21 @@ public class Billetera implements IBilletera {
 	        throw new IllegalArgumentException("El cvu ingresado es invalido");
 
 	    return cuentas.get(cvu);
+	}
+	
+	private void registrarInversion(Inversion i, Cuenta c)
+	{
+		inversiones.put(i.getId(), i);
+		c.agregarInversion(i);
+		
+		Usuario u = obtenerUsuarioTitularCuenta(c.getCvu());
+		
+		u.agregarInversion(i);
+		
+		historial.add(i);
+		c.agregarMovimiento(i);
+		u.agregarMovimiento(i);
+		
 	}
 	
 
