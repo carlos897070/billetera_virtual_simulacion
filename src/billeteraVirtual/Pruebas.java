@@ -30,11 +30,11 @@ public class Pruebas {
     	
     	Utilitarios.actualizarCotizacion("USD", 1350);
     	
-    	billetera.realizarInversionDivisa("34887900", "0000003100000000000001", 2000, 30, "USD", 0.1);
+    	billetera.realizarInversionDivisa("34887900", "0000003100000000000002", 2000, 30, "USD", 0.1);
     	
     	
     	
-    	System.out.println(billetera);
+    	System.out.println(billetera.obtenerCuenta("motor.16").saldoInvertido);
     	
     	
     	

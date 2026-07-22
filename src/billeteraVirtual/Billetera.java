@@ -1,23 +1,25 @@
 package billeteraVirtual;
 
-import java.util.List;
-
 import java.util.*;
 
 public class Billetera implements IBilletera {
 	
-	// dni, usuario
+	// Acceso a usuarios por dni
 	private Map<String, Usuario> usuarios;
-	// cuit, empresa
+	
+	//Acceso a empresas por cuit
     private Map<String, Empresa> empresas;
+    
     // Acceso a cuentas por cvu
     private Map<String, Cuenta> cuentas;
     
     // Acceso a cuentas por alias
     private Map<String, Cuenta> cuentasAlias;
     
+    // Acceso a inversiones por id
     private Map<Integer, Inversion> inversiones;
     
+    // Lista que guarda el historial de actividades
     private List<Movimiento> historial;
 	
 	public Billetera() {
@@ -32,8 +34,7 @@ public class Billetera implements IBilletera {
 
 	
 	@Override
-	public void registrarEmpresa(String cuit, String nombreFantasia, String telefono, String email,
-			String nombreContacto) {
+	public void registrarEmpresa(String cuit, String nombreFantasia, String telefono, String email, String nombreContacto) {
 		
 		if(empresas.containsKey(cuit)) throw new IllegalArgumentException("La empresa ya se encuentra registrada en el sistema");
 		
@@ -43,7 +44,6 @@ public class Billetera implements IBilletera {
 		
 	}
 	
-
 	@Override
 	public void agregarPersonaAutorizada(String cuitEmpresa, String dniAutorizado) {
 		
@@ -58,6 +58,8 @@ public class Billetera implements IBilletera {
 		
 	}
 
+	
+	
 	@Override
 	public void registrarUsuario(String dni, String nombre, String telefono, String email) {
 		
@@ -104,6 +106,13 @@ public class Billetera implements IBilletera {
 		return nueva.getCvu();
 	}
 	
+	// Metodo que crea una cuenta premium automaticamente con el saldo minimo
+	
+	public String crearCuentaPremium(String dniUsuario, String alias)
+	{
+		return crearCuentaPremium(dniUsuario, alias, CuentaPremium.SALDO_MINIMO);
+	}
+	
 
 	@Override
 	public String crearCuentaCorporativa(String dniUsuario, String alias, String cuitEmpresa) {
@@ -136,10 +145,11 @@ public class Billetera implements IBilletera {
 		
 		List<String> cuentas = new ArrayList<>();
 		
-		for(Cuenta c: usuarios.get(dniUsuario).getCuentas() )
+		for(Cuenta c : usuarios.get(dniUsuario).getCuentas())
 		{
 			cuentas.add(c.toString());
 		}
+		
 		return cuentas;
 		
 	}
@@ -154,7 +164,7 @@ public class Billetera implements IBilletera {
 	@Override
 	public void realizarTransferencia(String cvuOrigen, String cvuDestino, double monto) {
 		
-		// Validar las que existan las cuentas
+		// Validar que existan las cuentas
 		Cuenta origen = validarCuenta(cvuOrigen);
 		Cuenta destino = validarCuenta(cvuDestino);
 		
@@ -174,6 +184,7 @@ public class Billetera implements IBilletera {
 		obtenerUsuarioTitularCuenta(cvuDestino).agregarMovimiento(t);
 		origen.agregarMovimiento(t);
 		destino.agregarMovimiento(t);
+		t.aprobar();
 	}
 
 	@Override
@@ -190,12 +201,14 @@ public class Billetera implements IBilletera {
 		
 		// Extraer dinero para la inversion
 		c.retirarDinero(monto);
+		c.depositarEnSaldoDeInversiones(monto);
 		
 		// crear inverson y agregar a las estructuras de Billetera, Cuenta y Usuario
 		Inversion i = new InversionRentaFija(c, monto, plazoDias);
 		
-		// agrega la inversion las estructuras de Billetera, Cuenta y Usuario, y agrega la inversion a los historiales
+		// agrega la inversion a las estructuras de Billetera, Cuenta y Usuario, y agrega la inversion a los historiales
 		registrarInversion(i, c);
+		i.aprobar();
 		
 		return i.getId();
 	}
@@ -217,12 +230,14 @@ public class Billetera implements IBilletera {
 		
 		// Extraer dinero para la inversion
 		c.retirarDinero(monto);
+		c.depositarEnSaldoDeInversiones(monto);
 		
 		// crear inverson y agregar a las estructuras de Billetera, Cuenta y Usuario
 		Inversion i = new InversionDivisa(c, monto, plazoDias, divisa, tasa);
 		
 		// agrega la inversion las estructuras de Billetera, Cuenta y Usuario, y agrega la inversion a los historiales
 		registrarInversion(i, c);
+		i.aprobar();
 		
 		return i.getId();
 	}
@@ -244,15 +259,18 @@ public class Billetera implements IBilletera {
 		
 		// Extraer dinero para la inversion
 		c.retirarDinero(monto);
+		c.depositarEnSaldoDeInversiones(monto);
 		
 		// crear inverson
 		Inversion i = new InversionLiquidez(c, monto, plazoDias);
 		
 		// agrega la inversion las estructuras de Billetera, Cuenta y Usuario, y agrega la inversion a los historiales
 		registrarInversion(i, c);
+		i.aprobar();
 		
 		return i.getId();
 	}
+
 
 	@Override
 	public void precancelarInversion(String dni, String cvu, int idInversion) {
@@ -274,11 +292,13 @@ public class Billetera implements IBilletera {
 	    if(!i.esPrecancelable()) throw new IllegalArgumentException("La inversion no se puede cancelar");
 
 	    // cancelar inversion
-	    i.cancelar();
+	    i.desactivar();
 	    
 	    // devolver dinero
 	    c.depositar(i.calcularRetorno());
-	    i.modificarMonto(0);
+	    c.retirarDineroDeInversion(i.getMonto());
+	    //i.modificarMonto(0);
+	    i.cancelar();
 		
 	}
 
@@ -288,6 +308,11 @@ public class Billetera implements IBilletera {
 		if(!cuentasAlias.containsKey(alias)) throw new IllegalArgumentException("El alias no existe en el sistema");
 		
 		return cuentasAlias.get(alias).getCvu();
+	}
+	
+	public String consultarCvu(Cuenta c)
+	{
+	    return consultarCvu(c.getAlias());
 	}
 
 	@Override
@@ -359,6 +384,9 @@ public class Billetera implements IBilletera {
 
 	    List<String> top = new ArrayList<>();
 
+	    /* Este limite se establece en caso que las cuentas existentes sean menor al top ingresado, en ese caso
+	     * solo se imprimiran las existentes*/
+	    
 	    int limite = Math.min(cantidadTop, cuntasExistentes.size());
 
 	    for(int i = 0; i < limite; i++)
@@ -368,12 +396,25 @@ public class Billetera implements IBilletera {
 
 	    return top;
 	}
+	
+	public void procesarInversionesQueVencenHoy()
+	{
+		for(Inversion i : inversiones.values())
+		{
+			if(i.estaActiva() && i.getFechaVencimiento().equals(Utilitarios.hoy()))
+			{
+				i.getCuenta().retirarDineroDeInversion(i.getMonto());
+				double dineroGenerado = i.calcularRetorno();
+				i.getCuenta().depositar(dineroGenerado);
+				i.desactivar();
+			}
+		}
+	}
 
 	@Override
 	public String toString() {
 		return "\nBilletera: \n\nUsuarios: " + imprimirUsuarios() + "\nEmpresas: " + imprimirEmpresas() + 
-				"\nCuentas:\n" + imprimirCuentas() + "\nInversiones: " + imprimirInversiones() + "\nHistorial : "
-				+ historial;
+				"\nCuentas:\n" + imprimirCuentas() + "\nHistorial : " + historial;
 	}
 	
 	
@@ -398,12 +439,15 @@ public class Billetera implements IBilletera {
 	private String imprimirCuentas()
 	{
 	    StringBuilder nuevo = new StringBuilder();
-
-	    for(Cuenta cuenta : cuentas.values())
+	    
+	    Iterator<Map.Entry<String, Cuenta>> it = cuentas.entrySet().iterator();
+	    
+	    while(it.hasNext())
 	    {
-	        nuevo.append(cuenta).append("\n");
+	    	Map.Entry<String, Cuenta> e = it.next();
+	    	nuevo.append(e.getValue()).append("\n");
 	    }
-
+	    
 	    return nuevo.toString();
 	}
 	
@@ -411,10 +455,13 @@ public class Billetera implements IBilletera {
 	{
 		StringBuilder nuevo = new StringBuilder();
 		
-		for(Usuario us : usuarios.values())
-		{
-			nuevo.append(us).append("\n");
-		}
+		Iterator<Map.Entry<String, Usuario>> it = usuarios.entrySet().iterator();
+	    
+	    while(it.hasNext())
+	    {
+	    	Map.Entry<String, Usuario> e = it.next();
+	    	nuevo.append(e.getValue()).append("\n");
+	    }
 		
 		return nuevo.toString();
 	}
@@ -423,22 +470,13 @@ public class Billetera implements IBilletera {
 	{
 		StringBuilder nuevo = new StringBuilder();
 		
-		for(Empresa e : empresas.values())
-		{
-			nuevo.append(e).append("\n");
-		}
-		
-		return nuevo.toString();
-	}
-	
-	private String imprimirInversiones()
-	{
-		StringBuilder nuevo = new StringBuilder();
-		
-		for(Inversion i : inversiones.values())
-		{
-			nuevo.append(i).append("\n");
-		}
+		Iterator<Map.Entry<String, Empresa>> it = empresas.entrySet().iterator();
+	    
+	    while(it.hasNext())
+	    {
+	    	Map.Entry<String, Empresa> e = it.next();
+	    	nuevo.append(e.getValue()).append("\n");
+	    }
 		
 		return nuevo.toString();
 	}
@@ -482,5 +520,4 @@ public class Billetera implements IBilletera {
 		
 	}
 	
-
 }

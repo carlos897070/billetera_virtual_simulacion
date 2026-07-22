@@ -2,7 +2,7 @@ package billeteraVirtual;
 
 public class InversionRentaFija extends Inversion {
 
-    private static final double TASA = 0.40;
+    private static final double TASA = 0.20;
 
     public InversionRentaFija(Cuenta cuentaOrigen, double monto, int plazoDias) {
 
@@ -14,7 +14,7 @@ public class InversionRentaFija extends Inversion {
     {
         long dias = java.time.temporal.ChronoUnit.DAYS.between(fecha, Utilitarios.hoy());
 
-        double intereses = monto * (0.20 / 365.0) * dias;
+        double intereses = monto * (TASA / 365.0) * dias;
 
         // si fue precancelada
         if(!activa)
@@ -31,14 +31,4 @@ public class InversionRentaFija extends Inversion {
     	return true;
     }
 
-    @Override
-    public String toString() {
-
-        return "\n-INVERSION:\n" +
-        	   " | Fecha: " + fecha + "\n" +
-               " | Origen: " + "[" + cuentaOrigen.getDniTitular() + "]" + "[" + cuentaOrigen.getCvu() + "]\n" +
-               " | Tipo: [RentaFija]" + "\n" +
-               " | Monto: " + "[" +monto+ "]" + "\n" +
-               " | Plazo: " + "["+plazoDias+" dias]\n";
-    }
 }

@@ -42,7 +42,7 @@ public class InversionDivisa extends Inversion {
 	    // intereses proporcionales
 	    double intereses = capitalEnDivisa * (tasa / 365.0) * dias;
 
-	    // si fue precancelada -> mitad de intereses
+	    // si fue precancelada se da la mitad de intereses
 	    if(!activa)
 	    {
 	        intereses /= 2;
@@ -60,16 +60,5 @@ public class InversionDivisa extends Inversion {
 	{
 		return true;
 	}
-	
-	@Override
-    public String toString() {
-
-        return "\n-INVERSION:\n" +
-        	   " | Fecha: " + fecha + "\n" +
-               " | Origen: " + "[" + cuentaOrigen.getDniTitular() + "]" + "[" + cuentaOrigen.getCvu() + "]\n" +
-               " | Tipo: [Divisa]" + "\n" +
-               " | Monto: " + "[" +monto+ "]" + "\n" +
-               " | Plazo: " + "["+plazoDias+" dias]\n";
-    }
 	
 }

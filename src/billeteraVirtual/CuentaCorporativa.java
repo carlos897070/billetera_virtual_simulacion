@@ -15,11 +15,4 @@ public class CuentaCorporativa extends Cuenta {
 		return cuitEmpresa;
 	}
 
-	@Override
-	public String toString() {
-		return "Tipo: " + "[CuentaCorporativa]: " + "[" + alias + "]" + "[" + cvu + "]";
-	}
-	
-	
-
 }

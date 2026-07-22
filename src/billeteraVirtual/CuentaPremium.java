@@ -9,15 +9,4 @@ public class CuentaPremium extends Cuenta {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public String toString() {
-		return "Tipo: " + "[CuentaPremium]: " + "[" + alias + "]" + "[" + cvu + "]";
-	}
-	
-	
-	
-	
-
-	
-
 }

@@ -8,11 +8,6 @@ public class CuentaRegular extends Cuenta {
 		super(alias, dniTitular);
 		// TODO Auto-generated constructor stub
 	}
-
-	@Override
-	public String toString() {
-		return "Tipo: " + "[CuentaRegular]: " + "[" + alias + "]" + "[" + cvu + "]";
-	}
 	
 	@Override
 	public void depositar(double dinero)
@@ -23,12 +18,6 @@ public class CuentaRegular extends Cuenta {
 		
 		saldo += dinero;
 	}
-
-	
-	
-
-	
-	
 	
 
 }

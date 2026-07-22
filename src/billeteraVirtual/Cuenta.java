@@ -7,6 +7,7 @@ public abstract class Cuenta {
 	protected String cvu;
 	protected String alias;
 	protected double saldo;
+	protected double saldoInvertido;
 	protected String dniTitular;
 	protected List<Movimiento> historial;
 	protected List<Inversion> inversiones;
@@ -16,6 +17,7 @@ public abstract class Cuenta {
 		this.cvu = Utilitarios.generarSiguienteCvu();
 		this.alias = alias;
 		this.saldo = 0;
+		this.saldoInvertido = 0;
 		this.dniTitular = dniTitular;
 		this.historial = new ArrayList<>();
 		this.inversiones = new ArrayList<>();
@@ -48,6 +50,11 @@ public abstract class Cuenta {
 		return historial;
 	}
 	
+	public double getSaldoInvertido()
+	{
+		return saldoInvertido;
+	}
+	
 	public List<Inversion> getInversiones()
 	{
 		return inversiones;
@@ -61,13 +68,27 @@ public abstract class Cuenta {
 	public void depositar(double dinero)
 	{
 		if(dinero <= 0) throw new IllegalArgumentException("Monto inválido");
+		
 		saldo += dinero;
+		
 	}
 	
-	public void retirarDinero(double dinero)
+	public boolean retirarDinero(double dinero)
 	{
 		if(dinero > saldo || dinero <= 0) throw new IllegalArgumentException("Monto inválido");
+		
 		saldo -= dinero;
+		return true;
+	}
+	
+	public void depositarEnSaldoDeInversiones(double dinero)
+	{
+		this.saldoInvertido += dinero;
+	}
+	
+	public void retirarDineroDeInversion(double dinero)
+	{
+		this.saldoInvertido -= dinero;
 	}
 	
 	public void agregarMovimiento(Movimiento m)
@@ -82,7 +103,7 @@ public abstract class Cuenta {
 
 	@Override
 	public String toString() {
-		return "Cuenta [cvu=" + cvu + ", alias=" + alias + ", saldo=" + saldo + ", DNI titular=" + dniTitular + "]";
+		return "[" + getClass().getSimpleName() + "]: [" + alias + "]" + "[" + cvu + "]";
 	}
 	
 	

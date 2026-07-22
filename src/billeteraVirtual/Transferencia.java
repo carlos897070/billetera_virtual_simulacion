@@ -2,8 +2,8 @@ package billeteraVirtual;
 
 public class Transferencia extends Movimiento {
 
-	Cuenta cvuOrigen;
-	Cuenta cvuDestino;
+	private Cuenta cvuOrigen;
+	private Cuenta cvuDestino;
 	
 	
 	public Transferencia(Cuenta cvuOrigen, Cuenta cvuDestino, double monto) {
@@ -22,6 +22,7 @@ public class Transferencia extends Movimiento {
                " | Fecha: " + fecha + "\n" +
                " | Origen: [" + cvuOrigen.getDniTitular() + "]" + "[" + cvuOrigen.getCvu() + "]" + "\n" +
                " | Destino: [" + cvuDestino.getDniTitular() + "]" + "[" + cvuDestino.getCvu() + "]" + "\n" +
-               " | Monto: $" + monto + "\n";
+               " | Monto: $" + monto + "\n" +
+               " | Estado: " + estado + "\n";
     }
 }
